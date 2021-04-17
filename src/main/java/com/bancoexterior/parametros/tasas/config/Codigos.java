@@ -25,10 +25,15 @@ public class Codigos {
 		//entrada tasa
 		public static final String CDE1009 = "1009";
 		public static final String CDE1010 = "1010";
+		public static final String CDE1011 = "1011";
 		
+		
+		//BD
+		public static final String CME2001 = "2001";
 		
 		////GENERAL
     	public static final String CME6000 = "6000";
+    	public static final String CME6001 = "6001";
 		public static final String CME6002 = "6002";
 		
 	}
@@ -49,7 +54,7 @@ public class Codigos {
 		public static final String CODMONEDA       = "^[a-zA-Z\\-0-9]{1,3}$";
 		public static final String DESCRIPCION     = "^.{1,500}$";
 		public static final String CODALTERNO      = "^.{1,10}$";
-		public static final String MONTO           = "^\\d{1,3}(\\.?\\d{3})*(,\\d{1,2})?$";
+		//public static final String MONTO           = "^\\d{1,3}(\\.?\\d{3})*(,\\d{1,2})?$";
 		
 	}
 	

@@ -1,5 +1,6 @@
 package com.bancoexterior.parametros.tasas.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,19 +16,28 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
 
 import com.bancoexterior.parametros.tasas.util.Utils;
 import com.bancoexterior.parametros.tasas.response.ResponseBad;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
+import com.bancoexterior.parametros.tasas.dto.DatosPrueba;
 import com.bancoexterior.parametros.tasas.dto.DatosRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
+import com.bancoexterior.parametros.tasas.entities.TasaPk;
+import com.bancoexterior.parametros.tasas.service.IMonedaService;
 import com.bancoexterior.parametros.tasas.service.ITasaService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +49,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TasaController {
 
 	@Autowired
-	ITasaService tasaService;
+	private ITasaService tasaService;
+	
+	@Autowired
+	private IMonedaService monedaService;
+	
 	
 	@Autowired
 	private Environment env;
@@ -80,6 +94,161 @@ public class TasaController {
 			return new ResponseEntity<>(response.getResultado(),estatusCM);
 		}
 	}
+	
+	@PostMapping(path =Servicios.TASASURLV1, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Object> crearTasa(@Valid @RequestBody TasaRequestCrear tasaRequestCrear, BindingResult result, WebRequest webRequest,
+			HttpServletRequest requestHTTP){
+		
+		log.info("[==== INICIO Convenio n° 1 Crear Tasa - Controller ====]");
+		log.info("tasaRequestCrear: " + tasaRequestCrear);
+		//Validando datos de entrada
+	    if (result.hasErrors()) {
+			ResponseBad responseBad = new ResponseBad();	
+			List<String> errors = result
+	                .getFieldErrors()
+	                .stream()
+	                .map(FieldError::getDefaultMessage)
+	                .collect(Collectors.toList());
+	    	log.info("errors: "+errors);
+			
+			HttpStatus httpStatusError = Utils.getHttpStatus(errors.get(0));
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo(errors.get(0));
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+errors.get(0),errors.get(0)));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+			
+		}
+		
+	    TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear(); 
+	    
+	    String codMonedaOrigen = tasaDtoRequestCrear.getCodMonedaOrigen();
+		
+	    String codMonedaDestino = tasaDtoRequestCrear.getCodMonedaDestino();
+	  //Validando que las monedas sean iguales
+	    if (codMonedaOrigen.equals(codMonedaDestino)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2004");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2004");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2004","2004"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+		}
+	    
+	    TasaPk id = new TasaPk(codMonedaOrigen, codMonedaDestino);
+	    //Validando que ya exista la tasa
+	    if (tasaService.existsById(id)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2006");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2006");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2006","2006"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+		}
+	    
+	    id.setCodMonedaDestino(codMonedaOrigen);
+	    id.setCodMonedaOrigen(codMonedaDestino);
+	    //Validando si ya exista la tasa inversa entre monedas
+	    if (tasaService.existsById(id)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2007");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2007");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2007","2007"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+		}
+	    
+	    if (!monedaService.findById(codMonedaOrigen)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2003");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2003");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2003","2003"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+	    }
+	    
+	    if (!monedaService.findById(codMonedaDestino)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2005");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2005");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2005","2005"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+	    }
+		
+		
+		TasaDtoResponse response;
+		HttpStatus estatusCM;
+		
+				
+		response = tasaService.save(tasaRequestCrear);
+		log.info("response de regrso: "+response);
+		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
+		log.info("[==== FIN Convenio n° 1 Monedas - Controller ====]");
+		log.info("estatusCM: "+estatusCM);
+		log.info("response: "+response);
+		log.info("[==== FIN Convenio n° 1 Monedas - Controller ====]");
+		if(response.getResultado().getCodigo().trim().substring(0, 1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)) {
+			log.info("se fue por aqui, buena respuesta");
+			return new ResponseEntity<>(response,estatusCM);
+		}else {
+			log.info("se fue por aqui");
+			return new ResponseEntity<>(response.getResultado(),estatusCM);
+		}
+	}
+	
+	@PostMapping(path =Servicios.TASASURLV1+"create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Object> crearTasa2(@RequestBody @Valid TasaRequestCrear tasaRequestCrear,
+			HttpServletRequest requestHTTP){
+		
+		log.info("[==== INICIO Convenio n° 1 Crear Tasa - Controller ====]");
+		log.info("tasaRequestCrear: " + tasaRequestCrear);
+		
+		
+	    TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear(); 
+	    
+	    String codMonedaOrigen = tasaDtoRequestCrear.getCodMonedaOrigen();
+		
+	    String codMonedaDestino = tasaDtoRequestCrear.getCodMonedaDestino();
+		
+	    if (codMonedaOrigen.equals(codMonedaDestino)) {
+	    	ResponseBad responseBad = new ResponseBad();
+	    	HttpStatus httpStatusError = Utils.getHttpStatus("2004");
+			log.info("httpStatusError: "+httpStatusError);
+			responseBad.getResultadoBAD().setCodigo("2004");
+	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+"2004","2004"));
+			return new ResponseEntity<>(responseBad, httpStatusError);
+		}
+	    
+	    
+	    if (monedaService.findById(codMonedaOrigen)) {
+			
+	    	
+	    	
+		}
+		
+		
+		TasaDtoResponse response;
+		HttpStatus estatusCM;
+		
+		return null;
+		/*
+		response = tasaService.consultaTasas(tasaRequestConsulta);
+		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
+		log.info("[==== FIN Convenio n° 1 Monedas - Controller ====]");
+		log.info("estatusCM: "+estatusCM);
+		log.info("response: "+response);
+		log.info("[==== FIN Convenio n° 1 Monedas - Controller ====]");
+		if(response.getResultado().getCodigo().trim().substring(0, 1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)) {
+			return new ResponseEntity<>(response,estatusCM);
+		}else {
+		
+			return new ResponseEntity<>(response.getResultado(),estatusCM);
+		}*/
+	}
+	
+	
 	
 	//@GetMapping("/prueba3")
 	@GetMapping(path =Servicios.TASASURLV1+"/todas", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

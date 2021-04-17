@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.bancoexterior.parametros.tasas.response.ResponseBad;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,14 +44,15 @@ public class ApiExceptionHandler {
             org.springframework.web.bind.MissingServletRequestParameterException.class,
             org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
             org.springframework.http.converter.HttpMessageNotReadableException.class
-           
+ 
             
             
     })
     @ResponseBody
-    public ErrorMessage badRequest(Exception exception) {
+    public ResponseBad badRequest(Exception exception) {
     	log.info("badRequest");
-        return new ErrorMessage(exception, HttpStatus.BAD_REQUEST.value());
+    	 //Person person = (Person) request.getAttribute("person", RequestAttributes.SCOPE_REQUEST);
+        return new ResponseBad(exception, HttpStatus.BAD_REQUEST.value());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)

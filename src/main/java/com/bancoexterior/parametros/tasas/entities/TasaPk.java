@@ -7,12 +7,13 @@ import javax.persistence.Embeddable;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Embeddable
 @Data
+@AllArgsConstructor @NoArgsConstructor
 public class TasaPk implements Serializable{
 	
 

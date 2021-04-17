@@ -1,6 +1,5 @@
 package com.bancoexterior.parametros.tasas.dto;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -13,10 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor @NoArgsConstructor
-public class TasaDto implements Serializable{
-	
-	
-
+public class TasaDtoInversa {
 	@JsonProperty("codMonedaOrigen")
 	private String codMonedaOrigen;
 	
@@ -32,31 +28,7 @@ public class TasaDto implements Serializable{
 	@JsonProperty("fechaModificacion")
 	private Date fechaModificacion;
 	
-	
-	
-	
-	
-	
-	
-	public TasaDto(TasaRequest tasaRequest) {
-		super();
-		this.codMonedaOrigen = tasaRequest.getTasasDtoRequest().getCodMonedaOrigen();
-		this.codMonedaDestino = tasaRequest.getTasasDtoRequest().getCodMonedaDestino();
-		this.montoTasa = tasaRequest.getTasasDtoRequest().getMontoTasa();
-		this.codUsuario = tasaRequest.getCodUsuarioMR();
-		
-		
-	}
-	
-	
+	@JsonProperty("montoTasaInversa")
+	private BigDecimal montoTasaInversa;
 
-	
-	
-	
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 }
-

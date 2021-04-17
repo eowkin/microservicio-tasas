@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoInversa;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
 import com.bancoexterior.parametros.tasas.entities.TasaPk;
 
@@ -26,6 +28,8 @@ public interface ITasaService {
 	
 	public Tasa findById(TasaPk id);
 	
+	public List<TasaDtoInversa> findAllInversa();
+	
 	public List<TasaDto> getTasaByCodMonedaOrigenAndCodMonedaDestino(String codMonedaOrigen, String codMonedaDestino);
 	
 	public TasaDtoResponse getTasaByParameter(String codMonedaOrigen, String codMonedaDestino);
@@ -40,4 +44,8 @@ public interface ITasaService {
 	
 	public TasaDtoResponse findAllDtoResponse();
 	
+	//si lo uso
+	public boolean existsById(TasaPk id);
+	
+	public TasaDtoResponse save(TasaRequestCrear tasaRequestCrear);
 }

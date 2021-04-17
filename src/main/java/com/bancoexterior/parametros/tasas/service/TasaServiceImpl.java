@@ -12,13 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import com.bancoexterior.parametros.tasas.util.Mapper;
 import com.bancoexterior.parametros.tasas.config.Codigos.CodRespuesta;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoInversa;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
+import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
 import com.bancoexterior.parametros.tasas.entities.TasaPk;
 import com.bancoexterior.parametros.tasas.repository.ITasaRepository;
@@ -36,6 +40,9 @@ public class TasaServiceImpl implements ITasaService{
 	
 	@Autowired
 	private Environment env;
+
+	@Autowired
+	private Mapper mapper;
 	
 	@Override
 	public List<Tasa> findAll() {
@@ -60,7 +67,9 @@ public class TasaServiceImpl implements ITasaService{
 
 	@Override
 	public List<Tasa> findAllNative(String codMonedaOrigen, String codMonedaDestino) {
-		return repo.getQueryNativo(null, "926");
+		
+		return null;
+		//return repo.getQueryNativo(null, "926");
 		//return repo.getQueryNativo1();
 		//return repo.getQueryNativo21("111");
 	}
@@ -273,6 +282,54 @@ public class TasaServiceImpl implements ITasaService{
 	    log.info(""+resultado);
 		return resultado;
 		
+	}
+
+	@Override
+	public boolean existsById(TasaPk id) {
+		return repo.existsById(id);
+	}
+
+	@Override
+	public TasaDtoResponse save(TasaRequestCrear tasaRequestCrear) {
+		log.info("Inicio del guardar nueva tasa");
+		Tasa obj = new Tasa();
+		TasaDtoResponse response = new TasaDtoResponse();
+		Resultado resultado = new Resultado();
+		
+		resultado.setCodigo(CodRespuesta.C0000);
+		resultado.setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.C0000,CodRespuesta.C0000).replace(Constantes.ERROR, Constantes.BLANK));
+		
+		try {
+			log.info("tasaRequestCrear: "+tasaRequestCrear);
+			TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear();
+			log.info("tasaDtoRequestCrear: "+tasaDtoRequestCrear);
+			//obj = mapper.map(tasaDtoRequestCrear, Tasa.class);
+			TasaPk id = new TasaPk(tasaDtoRequestCrear.getCodMonedaOrigen(), tasaDtoRequestCrear.getCodMonedaDestino());
+			
+			obj.setId(id);
+			obj.setCodUsuario(tasaRequestCrear.getCodUsuarioMR());
+			obj.setMontoTasa(tasaDtoRequestCrear.getMontoTasa());
+			
+			
+			log.info("obj: "+obj);
+			obj = repo.save(obj);
+			response.setResultado(resultado);
+			response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
+			return response;
+		} catch (Exception e) {
+			log.error("no se pudo crear el usuario");
+			response.getResultado().setCodigo(CodRespuesta.CME6001);
+			log.info("error: "+env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
+			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
+			return response;
+		}
+		
+	}
+
+	@Override
+	public List<TasaDtoInversa> findAllInversa() {
+		//return null;
+		return repo.getAll2();
 	}
 
 	
