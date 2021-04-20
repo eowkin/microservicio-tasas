@@ -18,9 +18,12 @@ import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoInversa;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoResponseActualizar;
+import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
@@ -290,10 +293,10 @@ public class TasaServiceImpl implements ITasaService{
 	}
 
 	@Override
-	public TasaDtoResponse save(TasaRequestCrear tasaRequestCrear) {
+	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear) {
 		log.info("Inicio del guardar nueva tasa");
 		Tasa obj = new Tasa();
-		TasaDtoResponse response = new TasaDtoResponse();
+		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
 		Resultado resultado = new Resultado();
 		
 		resultado.setCodigo(CodRespuesta.C0000);
@@ -314,7 +317,7 @@ public class TasaServiceImpl implements ITasaService{
 			log.info("obj: "+obj);
 			obj = repo.save(obj);
 			response.setResultado(resultado);
-			response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
+			//response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
 			return response;
 		} catch (Exception e) {
 			log.error("no se pudo crear el usuario");
@@ -330,6 +333,56 @@ public class TasaServiceImpl implements ITasaService{
 	public List<TasaDtoInversa> findAllInversa() {
 		//return null;
 		return repo.getAll2();
+	}
+
+	@Override
+	public TasaDto findByIdDto(TasaPk id) {
+		Tasa tasa = repo.findById(id).orElse(null);
+		TasaDto tasaDto = new TasaDto();
+		tasaDto.setCodMonedaOrigen(tasa.getId().getCodMonedaOrigen());
+		tasaDto.setCodMonedaDestino(tasa.getId().getCodMonedaDestino());
+		tasaDto.setMontoTasa(tasa.getMontoTasa());
+		tasaDto.setCodUsuario(tasa.getCodUsuario());
+		tasaDto.setFechaModificacion(tasa.getFechaModificacion());
+		return tasaDto;
+	}
+
+	@Override
+	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar) {
+		log.info("Inicio del actualizar tasa");
+		Tasa obj = new Tasa();
+		//TasaDtoResponse response = new TasaDtoResponse();
+		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
+		Resultado resultado = new Resultado();
+		
+		resultado.setCodigo(CodRespuesta.C0000);
+		resultado.setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.C0000,CodRespuesta.C0000).replace(Constantes.ERROR, Constantes.BLANK));
+		
+		try {
+			log.info("tasaRequestCrear: "+tasaRequestActualizar);
+			TasaDtoRequestActualizar tasaDtoRequestActualizar = tasaRequestActualizar.getTasaDtoRequestActualizar();
+			
+			log.info("tasaDtoRequestActualizar: "+tasaDtoRequestActualizar);
+			//obj = mapper.map(tasaDtoRequestCrear, Tasa.class);
+			TasaPk id = new TasaPk(tasaDtoRequestActualizar.getCodMonedaOrigen(), tasaDtoRequestActualizar.getCodMonedaDestino());
+			
+			obj.setId(id);
+			obj.setCodUsuario(tasaRequestActualizar.getCodUsuarioMR());
+			obj.setMontoTasa(tasaDtoRequestActualizar.getMontoTasa());
+			obj.setFechaModificacion(tasaDtoRequestActualizar.getFechaModificacion());
+			//obj.setFechaModificacion(tasaDtoRequestCrear.getTasaDtoRequestCrear());
+			
+			log.info("obj: "+obj);
+			obj = repo.save(obj);
+			response.setResultado(resultado);
+			return response;
+		} catch (Exception e) {
+			log.error("no se pudo actualizar el usuario");
+			response.getResultado().setCodigo(CodRespuesta.CME6001);
+			log.info("error: "+env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
+			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
+			return response;
+		}
 	}
 
 	

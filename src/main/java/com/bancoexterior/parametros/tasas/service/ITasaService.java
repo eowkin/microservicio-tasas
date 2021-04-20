@@ -7,6 +7,8 @@ import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoInversa;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
+import com.bancoexterior.parametros.tasas.dto.TasaDtoResponseActualizar;
+import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
@@ -47,5 +49,9 @@ public interface ITasaService {
 	//si lo uso
 	public boolean existsById(TasaPk id);
 	
-	public TasaDtoResponse save(TasaRequestCrear tasaRequestCrear);
+	public TasaDto findByIdDto(TasaPk id);
+	
+	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear);
+	
+	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar);
 }

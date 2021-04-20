@@ -27,7 +27,9 @@ public interface ITasaRepository extends JpaRepository<Tasa, TasaPk>{
 	
 	
 	
-	String queryAll = "select new com.bancoexterior.parametros.tasas.dto.TasaDto(t.id.codMonedaOrigen, t.id.codMonedaDestino, t.montoTasa, t.codUsuario, t.fechaModificacion) "
+	String queryAll = "select new com.bancoexterior.parametros.tasas.dto.TasaDto(t.id.codMonedaOrigen, "
+			+ "t.id.codMonedaDestino, t.montoTasa, t.codUsuario, t.fechaModificacion, "
+			+ "round((case when t.montoTasa <> 0 then (1/t.montoTasa) else t.montoTasa end),2)) "
 			+ " from Tasa t"
 			+ " where 1=1";
 	

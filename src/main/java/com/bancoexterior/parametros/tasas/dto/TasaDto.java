@@ -32,8 +32,8 @@ public class TasaDto implements Serializable{
 	@JsonProperty("fechaModificacion")
 	private Date fechaModificacion;
 	
-	
-	
+	@JsonProperty("montoTasaInversa")
+	private BigDecimal montoTasaInversa;
 	
 	
 	
@@ -54,6 +54,22 @@ public class TasaDto implements Serializable{
 	
 	
 	
+	public TasaDto(String codMonedaOrigen, String codMonedaDestino, BigDecimal montoTasa, String codUsuario,
+			Date fechaModificacion) {
+		super();
+		this.codMonedaOrigen = codMonedaOrigen;
+		this.codMonedaDestino = codMonedaDestino;
+		this.montoTasa = montoTasa;
+		this.codUsuario = codUsuario;
+		this.fechaModificacion = fechaModificacion;
+	}
+
+
+
+
+
+
+
 	/**
 	 * 
 	 */
