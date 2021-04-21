@@ -3,6 +3,7 @@ package com.bancoexterior.parametros.tasas.service;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -12,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.bancoexterior.parametros.tasas.util.Mapper;
+import com.bancoexterior.parametros.tasas.interfase.IRegistrarAuditoriaService;
+import com.bancoexterior.parametros.tasas.model.RegistrarAuditoriaRequest;
 import com.bancoexterior.parametros.tasas.config.Codigos.CodRespuesta;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
+import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
-import com.bancoexterior.parametros.tasas.dto.TasaDtoInversa;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
@@ -44,141 +46,15 @@ public class TasaServiceImpl implements ITasaService{
 	@Autowired
 	private Environment env;
 
+	
 	@Autowired
-	private Mapper mapper;
-	
-	@Override
-	public List<Tasa> findAll() {
-		return repo.findAll();
-	}
+	private IRegistrarAuditoriaService registrarA ;
 
-	@Override
-	public Tasa findById(TasaPk id) {
-		return repo.findById(id).orElse(null);
-	}
 
-	@Override
-	public List<TasaDto> getTasaByCodMonedaOrigenAndCodMonedaDestino(String codMonedaOrigen, String codMonedaDestino) {
-		return repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(codMonedaOrigen, codMonedaDestino);
-	}
-
-	@Override
-	public List<TasaDto> findAllDto() {
-		//return repo.getAll();
-		return repo.getAll(null);
-	}
-
-	@Override
-	public List<Tasa> findAllNative(String codMonedaOrigen, String codMonedaDestino) {
-		
-		return null;
-		//return repo.getQueryNativo(null, "926");
-		//return repo.getQueryNativo1();
-		//return repo.getQueryNativo21("111");
-	}
-	
-	@Override
-	public TasaDtoResponse getTasaByParameter(String codMonedaOrigen, String codMonedaDestino) {
-		TasaDtoResponse response = new TasaDtoResponse();
-		Resultado resultado = new Resultado();
-		resultado.setCodigo(CodRespuesta.C0000);
-		resultado.setDescripcion(Constantes.BLANK);
-		List<TasaDto> listTasasDto = repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(codMonedaOrigen, codMonedaDestino);
-		if (listTasasDto.isEmpty()) {
-			resultado.setCodigo(CodRespuesta.C0001);
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}else {
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}
-		
-		response.setResultado(resultado);
-		response.setListTasasDto(listTasasDto);
-		return response;
-	}
-	
-	@Override
-	public TasaDtoResponse getTasaByParameter(String codMonedaOrigen) {
-		TasaDtoResponse response = new TasaDtoResponse();
-		Resultado resultado = new Resultado();
-		resultado.setCodigo(CodRespuesta.C0000);
-		resultado.setDescripcion(Constantes.BLANK);
-		List<TasaDto> listTasasDto = repo.getTasaByCodMonedaOrigen(codMonedaOrigen);
-		if (listTasasDto.isEmpty()) {
-			resultado.setCodigo(CodRespuesta.C0001);
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}else {
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}
-		
-		response.setResultado(resultado);
-		response.setListTasasDto(listTasasDto);
-		return response;
-	}
-
-	@Override
-	public TasaDtoResponse getTasaByParameterCodMonedaDestino(String codMonedaDestino) {
-		TasaDtoResponse response = new TasaDtoResponse();
-		Resultado resultado = new Resultado();
-		resultado.setCodigo(CodRespuesta.C0000);
-		resultado.setDescripcion(Constantes.BLANK);
-		List<TasaDto> listTasasDto = repo.getTasaByCodMonedaDestino(codMonedaDestino);
-		if (listTasasDto.isEmpty()) {
-			resultado.setCodigo(CodRespuesta.C0001);
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}else {
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}
-		
-		response.setResultado(resultado);
-		response.setListTasasDto(listTasasDto);
-		return response;
-	}
-	
-	@Override
-	public TasaDtoResponse findAllDtoResponse() {
-		TasaDtoResponse response = new TasaDtoResponse();
-		Resultado resultado = new Resultado();
-		resultado.setCodigo(CodRespuesta.C0000);
-		resultado.setDescripcion(Constantes.BLANK);
-		List<TasaDto> listTasasDto = repo.getAll();
-		
-		if (listTasasDto.isEmpty()) {
-			resultado.setCodigo(CodRespuesta.C0001);
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}else {
-			resultado.setDescripcion(env.getProperty(Constantes.RES + resultado.getCodigo(), resultado.getCodigo()));
-		}
-		
-		response.setResultado(resultado);
-		response.setListTasasDto(listTasasDto);
-		return response;
-	}
-
-	@Override
-	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta) {
-		List<TasaDto> listTasaDto = null;
-		
-		if(tasaDtoConsulta.getCodMonedaOrigen() == null && tasaDtoConsulta.getCodMonedaDestino() == null) {
-			listTasaDto = repo.getAll();
-		}
-		
-		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() == null) {
-			listTasaDto = repo.getTasaByCodMonedaOrigen(tasaDtoConsulta.getCodMonedaOrigen());
-		}
-		
-		if(tasaDtoConsulta.getCodMonedaOrigen() == null && tasaDtoConsulta.getCodMonedaDestino() != null) {
-			listTasaDto = repo.getTasaByCodMonedaDestino(tasaDtoConsulta.getCodMonedaDestino());
-		}
-		
-		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() != null) {
-			listTasaDto = repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(tasaDtoConsulta.getCodMonedaOrigen(), tasaDtoConsulta.getCodMonedaDestino());
-		}
-		return listTasaDto;
-	}
 	
 	@Override
 	public TasaDtoResponse consultaTasas(TasaRequestConsulta request) {
-		log.info("\"==== INICIO Convenio 1 - Tasas Consultas ====\"");
+		log.info(Servicios.TASASSERVICEI);
 		TasaDtoResponse tasaDtoResponse = new TasaDtoResponse();
 		Resultado resultado = new Resultado();
 		String codigo = CodRespuesta.C0000;
@@ -215,7 +91,7 @@ public class TasaServiceImpl implements ITasaService{
 		tasaDtoResponse.getResultado().setDescripcion(env.getProperty(Constantes.RES+codigo,codigo).replace(Constantes.ERROR, errorCM));
 		
 		log.info("tasaDtoResponse: "+tasaDtoResponse);
-		log.info("==== FIN Convenio 1 - Tasa Consultas ====");
+		log.info(Servicios.TASASSERVICEF);
 		return tasaDtoResponse;
 	}
 	
@@ -286,15 +162,40 @@ public class TasaServiceImpl implements ITasaService{
 		return resultado;
 		
 	}
-
+	
+	/**
+     * Nombre:                 registrarAuditoriaBD
+     * Descripcion:            Registrar Auditoria en Web Service
+     *
+     * @param  req  Objeto RegistrarAuditoriaRequest
+     * @param  codigo   Codigo de respuesta
+     * @param descripcion Descripcion del resultado
+     * @version 1.0
+     * @author Wilmer Vieira
+	 * @since 02/03/21
+     */
+	private void registrarAuditoriaBD(RegistrarAuditoriaRequest registrarAu,Resultado response, String errorAdicional) {
+			
+		        registrarA.registrarAuditoria(registrarAu, response.getCodigo(),response.getDescripcion(),errorAdicional);	
+	}
+	
 	@Override
 	public boolean existsById(TasaPk id) {
 		return repo.existsById(id);
 	}
 
 	@Override
-	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear) {
-		log.info("Inicio del guardar nueva tasa");
+	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP) {
+		
+		log.info(Servicios.TASASSERVICEI);
+		log.info("tasaRequestCrear: "+tasaRequestCrear);
+		String microservicio = Servicios.TASAS;
+		
+		RegistrarAuditoriaRequest reAU = null;
+		
+		
+		reAU = new RegistrarAuditoriaRequest(tasaRequestCrear, microservicio,requestHTTP);
+		String errorM ;
 		Tasa obj = new Tasa();
 		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
 		Resultado resultado = new Resultado();
@@ -318,22 +219,28 @@ public class TasaServiceImpl implements ITasaService{
 			obj = repo.save(obj);
 			response.setResultado(resultado);
 			//response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
-			return response;
+			//return response;
 		} catch (Exception e) {
 			log.error("no se pudo crear el usuario");
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
 			log.info("error: "+env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
-			return response;
+			//return response;
 		}
 		
+		errorM = resultado.getDescripcion();
+		
+		if(reAU != null) {
+			reAU.setIdCliente(Constantes.RIF);
+			reAU.setCedula(Constantes.CEDULA);
+			reAU.setTelefono(Constantes.TELEFONO);
+			reAU.setIdCanal("8");
+			registrarAuditoriaBD(reAU, resultado, errorM);
+		}
+		return response;
 	}
 
-	@Override
-	public List<TasaDtoInversa> findAllInversa() {
-		//return null;
-		return repo.getAll2();
-	}
+
 
 	@Override
 	public TasaDto findByIdDto(TasaPk id) {
@@ -383,6 +290,28 @@ public class TasaServiceImpl implements ITasaService{
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			return response;
 		}
+	}
+	
+	@Override
+	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta){
+		List<TasaDto> listTasaDto = null;
+		
+		if(tasaDtoConsulta.getCodMonedaOrigen() == null && tasaDtoConsulta.getCodMonedaDestino() == null) {
+			listTasaDto = repo.getAll();
+		}
+		
+		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() == null) {
+			listTasaDto = repo.getTasaByCodMonedaOrigen(tasaDtoConsulta.getCodMonedaOrigen());
+		}
+		
+		if(tasaDtoConsulta.getCodMonedaOrigen() == null && tasaDtoConsulta.getCodMonedaDestino() != null) {
+			listTasaDto = repo.getTasaByCodMonedaDestino(tasaDtoConsulta.getCodMonedaDestino());
+		}
+		
+		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() != null) {
+			listTasaDto = repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(tasaDtoConsulta.getCodMonedaOrigen(), tasaDtoConsulta.getCodMonedaDestino());
+		}
+		return listTasaDto;
 	}
 
 	

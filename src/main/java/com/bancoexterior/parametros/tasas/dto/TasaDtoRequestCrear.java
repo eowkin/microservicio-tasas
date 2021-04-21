@@ -19,18 +19,18 @@ public class TasaDtoRequestCrear implements Serializable{
 	
 
 	@JsonProperty("codMonedaOrigen")
-	@NotEmpty(message=CodRespuesta.CDE1009)
-	@Pattern(regexp=ParamConfig.CODMONEDA, message=CodRespuesta.CDE1009)
+	@NotEmpty(message=CodRespuesta.CDE1004)
+	@Pattern(regexp=ParamConfig.CODMONEDA, message=CodRespuesta.CDE1004)
 	private String codMonedaOrigen;
 	
 	@JsonProperty("codMonedaDestino")
-	@NotEmpty(message=CodRespuesta.CDE1010)
-	@Pattern(regexp=ParamConfig.CODMONEDA, message=CodRespuesta.CDE1010)
+	@NotEmpty(message=CodRespuesta.CDE1005)
+	@Pattern(regexp=ParamConfig.CODMONEDA, message=CodRespuesta.CDE1005)
 	private String codMonedaDestino;
 	
 	@JsonProperty("montoTasa")
-	@NotNull(message = CodRespuesta.CDE1011)
-	@Digits(integer=13, fraction=2, message = CodRespuesta.CDE1011)
+	@NotNull(message = CodRespuesta.CDE1006)
+	@Digits(integer=13, fraction=2, message = CodRespuesta.CDE1006)
 	private BigDecimal montoTasa;
 
 	
