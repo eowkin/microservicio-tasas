@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -37,13 +39,15 @@ import com.bancoexterior.parametros.tasas.entities.TasaPk;
 import com.bancoexterior.parametros.tasas.service.IMonedaService;
 import com.bancoexterior.parametros.tasas.service.ITasaService;
 
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+
+
 @RestController
 @RequestMapping("${microservicio.path.pre}" + "${microservicio.ambiente}")
 public class TasaController {
 
+	private static final Logger LOGGER = LogManager.getLogger(TasaController.class);
+	
 	@Autowired
 	private ITasaService tasaService;
 	
@@ -71,16 +75,18 @@ public class TasaController {
 	public ResponseEntity<Object> listAllTasas(@RequestBody TasaRequestConsulta tasaRequestConsulta, 
 			HttpServletRequest requestHTTP){
 		
-		log.info(Servicios.TASASCONTROLLERI);
-		log.info("tasasRequest: " + tasaRequestConsulta);
+		
+		
+		LOGGER.info(Servicios.TASASCONTROLLERI);
+		LOGGER.info(tasaRequestConsulta);
 		TasaDtoResponse response;
 		HttpStatus estatusCM;
 		
 		response = tasaService.consultaTasas(tasaRequestConsulta);
 		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
-		log.info("estatusCM: "+estatusCM);
-		log.info("response: "+response);
-		log.info(Servicios.TASASCONTROLLERF);
+		LOGGER.info(estatusCM);
+		LOGGER.info(response);
+		LOGGER.info(Servicios.TASASCONTROLLERF);
 		if(response.getResultado().getCodigo().trim().substring(0, 1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)) {
 			return new ResponseEntity<>(response,estatusCM);
 		}else {
@@ -106,8 +112,8 @@ public class TasaController {
 	public ResponseEntity<Object> crearTasa(@Valid @RequestBody TasaRequestCrear tasaRequestCrear, BindingResult result,
 			HttpServletRequest requestHTTP){
 		
-		log.info(Servicios.TASASCONTROLLERI);
-		log.info("tasaRequestCrear: " + tasaRequestCrear);
+		LOGGER.info(Servicios.TASASCONTROLLERI);
+		LOGGER.info(tasaRequestCrear);
 		//Validando datos de entrada
 	    if (result.hasErrors()) {
 			ResponseBad responseBad = new ResponseBad();	
@@ -116,10 +122,9 @@ public class TasaController {
 	                .stream()
 	                .map(FieldError::getDefaultMessage)
 	                .collect(Collectors.toList());
-	    	log.info("errors: "+errors);
+			LOGGER.error(errors);
 			
 			HttpStatus httpStatusError = Utils.getHttpStatus(errors.get(0));
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(errors.get(0));
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+errors.get(0),errors.get(0)));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -135,7 +140,6 @@ public class TasaController {
 	    if (codMonedaOrigen.equals(codMonedaDestino)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2004);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2004);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2004,CodRespuesta.CME2004));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -146,7 +150,6 @@ public class TasaController {
 	    if (tasaService.existsById(id)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2001);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2001);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2001,CodRespuesta.CME2001));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -158,7 +161,6 @@ public class TasaController {
 	    if (tasaService.existsById(id)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2006);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2006);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2006,CodRespuesta.CME2006));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -167,7 +169,6 @@ public class TasaController {
 	    if (!monedaService.findById(codMonedaOrigen)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2003);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2003);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2003,CodRespuesta.CME2003));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -176,7 +177,6 @@ public class TasaController {
 	    if (!monedaService.findById(codMonedaDestino)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2005);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2005);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2005,CodRespuesta.CME2005));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -188,17 +188,15 @@ public class TasaController {
 		
 				
 		response = tasaService.save(tasaRequestCrear, requestHTTP);
-		log.info("response: "+response);
+		LOGGER.info(response);
 		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
 		
-		log.info("estatusCM: "+estatusCM);
+		LOGGER.info(estatusCM);
 		
-		log.info(Servicios.TASASCONTROLLERF);
+		LOGGER.info(Servicios.TASASCONTROLLERF);
 		if(response.getResultado().getCodigo().trim().substring(0, 1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)) {
-			log.info("se fue por aqui, buena respuesta");
 			return new ResponseEntity<>(response,estatusCM);
 		}else {
-			log.info("se fue por aqui");
 			return new ResponseEntity<>(response.getResultado(),estatusCM);
 		}
 	}
@@ -220,8 +218,16 @@ public class TasaController {
 	public ResponseEntity<Object> actualizarTasa(@Valid @RequestBody TasaRequestCrear tasaRequestCrear, BindingResult result,
 			HttpServletRequest requestHTTP){
 		
-		log.info(Servicios.TASASCONTROLLERI);
-		log.info("tasaRequestCrear: " + tasaRequestCrear);
+		
+		
+		
+		
+		LOGGER.info(Servicios.TASASCONTROLLERI);
+		LOGGER.info(tasaRequestCrear);
+		
+		
+		
+		
 		//Validando datos de entrada
 	    if (result.hasErrors()) {
 			ResponseBad responseBad = new ResponseBad();	
@@ -230,10 +236,9 @@ public class TasaController {
 	                .stream()
 	                .map(FieldError::getDefaultMessage)
 	                .collect(Collectors.toList());
-	    	log.info("errors: "+errors);
+			LOGGER.error(errors);
 			
 			HttpStatus httpStatusError = Utils.getHttpStatus(errors.get(0));
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(errors.get(0));
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+errors.get(0),errors.get(0)));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -252,7 +257,6 @@ public class TasaController {
 	    if (!tasaService.existsById(id)) {
 	    	ResponseBad responseBad = new ResponseBad();
 	    	HttpStatus httpStatusError = Utils.getHttpStatus(CodRespuesta.CME2000);
-			log.info("httpStatusError: "+httpStatusError);
 			responseBad.getResultadoBAD().setCodigo(CodRespuesta.CME2000);
 	    	responseBad.getResultadoBAD().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME2000,CodRespuesta.CME2000));
 			return new ResponseEntity<>(responseBad, httpStatusError);
@@ -278,17 +282,14 @@ public class TasaController {
 		HttpStatus estatusCM;
 		
 				
-		response = tasaService.actualizar(tasaRequestActualizar);
+		response = tasaService.actualizar(tasaRequestActualizar, requestHTTP);
 		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
-		log.info("[==== FIN Convenio n° 1 Monedas - Controller ====]");
-		log.info("estatusCM: "+estatusCM);
-		log.info("response: "+response);
-		log.info(Servicios.TASASCONTROLLERF);
+		LOGGER.info(estatusCM);
+		LOGGER.info(response);
+		LOGGER.info(Servicios.TASASCONTROLLERF);
 		if(response.getResultado().getCodigo().trim().substring(0, 1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)) {
-			log.info("se fue por aqui, buena respuesta");
 			return new ResponseEntity<>(response,estatusCM);
 		}else {
-			log.info("se fue por aqui");
 			return new ResponseEntity<>(response.getResultado(),estatusCM);
 		}
 	}

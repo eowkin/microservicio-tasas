@@ -34,5 +34,5 @@ public interface ITasaService {
 	
 	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP);
 	
-	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar);
+	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar, HttpServletRequest requestHTTP);
 }

@@ -1,5 +1,6 @@
 package com.bancoexterior.parametros.tasas.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import javax.validation.ValidatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bancoexterior.parametros.tasas.interfase.IRegistrarAuditoriaService;
 import com.bancoexterior.parametros.tasas.model.RegistrarAuditoriaRequest;
@@ -195,7 +197,8 @@ public class TasaServiceImpl implements ITasaService{
 		
 		
 		reAU = new RegistrarAuditoriaRequest(tasaRequestCrear, microservicio,requestHTTP);
-		String errorM ;
+		String errorM = Constantes.BLANK;
+		String codigo =  CodRespuesta.C0000;
 		Tasa obj = new Tasa();
 		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
 		Resultado resultado = new Resultado();
@@ -213,7 +216,8 @@ public class TasaServiceImpl implements ITasaService{
 			obj.setId(id);
 			obj.setCodUsuario(tasaRequestCrear.getCodUsuarioMR());
 			obj.setMontoTasa(tasaDtoRequestCrear.getMontoTasa());
-			
+			//E66666
+			//obj.setCodUsuario("E555555555555555");
 			
 			log.info("obj: "+obj);
 			obj = repo.save(obj);
@@ -221,22 +225,26 @@ public class TasaServiceImpl implements ITasaService{
 			//response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
 			//return response;
 		} catch (Exception e) {
-			log.error("no se pudo crear el usuario");
+			log.error("e: "+e);
+			codigo = CodRespuesta.CME6001;
+			errorM = Constantes.EXC+e;
+			
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
-			log.info("error: "+env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			//return response;
 		}
 		
-		errorM = resultado.getDescripcion();
+		resultado.setCodigo(codigo);
+		resultado.setDescripcion(env.getProperty(Constantes.RES+codigo,codigo).replace(Constantes.ERROR, errorM));
 		
 		if(reAU != null) {
 			reAU.setIdCliente(Constantes.RIF);
 			reAU.setCedula(Constantes.CEDULA);
 			reAU.setTelefono(Constantes.TELEFONO);
-			reAU.setIdCanal("8");
+			reAU.setIdCanal(tasaRequestCrear.getCanalCM());
 			registrarAuditoriaBD(reAU, resultado, errorM);
 		}
+		
 		return response;
 	}
 
@@ -255,8 +263,18 @@ public class TasaServiceImpl implements ITasaService{
 	}
 
 	@Override
-	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar) {
-		log.info("Inicio del actualizar tasa");
+	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar, HttpServletRequest requestHTTP) {
+		log.info(Servicios.TASASSERVICEI);
+		log.info("tasaRequestActualizar: "+tasaRequestActualizar);
+		String microservicio = Servicios.TASASACTUALIZAR;
+		
+		RegistrarAuditoriaRequest reAU = null;
+		
+		
+		reAU = new RegistrarAuditoriaRequest(tasaRequestActualizar, microservicio,requestHTTP);
+		String errorM = Constantes.BLANK;
+		String codigo =  CodRespuesta.C0000;
+		
 		Tasa obj = new Tasa();
 		//TasaDtoResponse response = new TasaDtoResponse();
 		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
@@ -266,7 +284,7 @@ public class TasaServiceImpl implements ITasaService{
 		resultado.setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.C0000,CodRespuesta.C0000).replace(Constantes.ERROR, Constantes.BLANK));
 		
 		try {
-			log.info("tasaRequestCrear: "+tasaRequestActualizar);
+			log.info("tasaRequestActualizar: "+tasaRequestActualizar);
 			TasaDtoRequestActualizar tasaDtoRequestActualizar = tasaRequestActualizar.getTasaDtoRequestActualizar();
 			
 			log.info("tasaDtoRequestActualizar: "+tasaDtoRequestActualizar);
@@ -277,19 +295,34 @@ public class TasaServiceImpl implements ITasaService{
 			obj.setCodUsuario(tasaRequestActualizar.getCodUsuarioMR());
 			obj.setMontoTasa(tasaDtoRequestActualizar.getMontoTasa());
 			obj.setFechaModificacion(tasaDtoRequestActualizar.getFechaModificacion());
-			//obj.setFechaModificacion(tasaDtoRequestCrear.getTasaDtoRequestCrear());
+
+			obj.setCodUsuario("E555555555555555");
 			
 			log.info("obj: "+obj);
 			obj = repo.save(obj);
 			response.setResultado(resultado);
-			return response;
+			//return response;
 		} catch (Exception e) {
-			log.error("no se pudo actualizar el usuario");
+			log.error("e: "+e);
+			codigo = CodRespuesta.CME6001;
+			errorM = Constantes.EXC+e;
+			
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
-			log.info("error: "+env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
-			return response;
 		}
+		
+		resultado.setCodigo(codigo);
+		resultado.setDescripcion(env.getProperty(Constantes.RES+codigo,codigo).replace(Constantes.ERROR, errorM));
+		
+		if(reAU != null) {
+			reAU.setIdCliente(Constantes.RIF);
+			reAU.setCedula(Constantes.CEDULA);
+			reAU.setTelefono(Constantes.TELEFONO);
+			reAU.setIdCanal(tasaRequestActualizar.getCanalCM());
+			registrarAuditoriaBD(reAU, resultado, errorM);
+		}
+		
+		return response;
 	}
 	
 	@Override

@@ -9,7 +9,7 @@ import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import lombok.extern.slf4j.Slf4j;
 
 
-@Slf4j
+
 public class RegistrarAuditoriaRequest {
 		
 	private String fecha;
@@ -35,9 +35,6 @@ public class RegistrarAuditoriaRequest {
 	
 	public RegistrarAuditoriaRequest(TasaRequestCrear request, String microservicio,HttpServletRequest requestHTTP) {
 		
-		log.info("RegistrarAuditoriaRequest");
-		log.info("requestHTTP.getHeader(Constantes.XCLIENTIP) _"+requestHTTP.getHeader(Constantes.XCLIENTIP));
-		log.info("requestHTTP.getRemoteAddr(): "+requestHTTP.getRemoteAddr());
 		
 		this.fecha                = Constantes.BLANK;
 		this.idCliente            = Constantes.BLANK;
@@ -58,9 +55,6 @@ public class RegistrarAuditoriaRequest {
 	
 	public RegistrarAuditoriaRequest(TasaRequestActualizar request, String microservicio,HttpServletRequest requestHTTP) {
 		
-		log.info("RegistrarAuditoriaRequest");
-		log.info("requestHTTP.getHeader(Constantes.XCLIENTIP) _"+requestHTTP.getHeader(Constantes.XCLIENTIP));
-		log.info("requestHTTP.getRemoteAddr(): "+requestHTTP.getRemoteAddr());
 		
 		this.fecha                = Constantes.BLANK;
 		this.idCliente            = Constantes.BLANK;
