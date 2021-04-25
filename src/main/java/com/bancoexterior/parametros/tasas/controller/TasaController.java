@@ -27,12 +27,9 @@ import com.bancoexterior.parametros.tasas.response.ResponseBad;
 import com.bancoexterior.parametros.tasas.config.Codigos.CodRespuesta;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
-import com.bancoexterior.parametros.tasas.dto.TasaDto;
-import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponseActualizar;
-import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.TasaPk;
@@ -262,27 +259,15 @@ public class TasaController {
 			return new ResponseEntity<>(responseBad, httpStatusError);
 		}		
 		
-	    TasaRequestActualizar tasaRequestActualizar = new TasaRequestActualizar();
-	    tasaRequestActualizar.setIdSesionMR(tasaRequestCrear.getIdSesionMR());
-	    tasaRequestActualizar.setIdUsuarioMR(tasaRequestCrear.getIdUsuarioMR());
-	    tasaRequestActualizar.setCodUsuarioMR(tasaRequestCrear.getCodUsuarioMR());
-	    tasaRequestActualizar.setCanalCM(tasaRequestCrear.getCanalCM());
 	    
-	    TasaDto tasaDto = tasaService.findByIdDto(id);
-	    TasaDtoRequestActualizar tasaDtoRequestActualizar = new TasaDtoRequestActualizar();
-	    tasaDtoRequestActualizar.setCodMonedaOrigen(tasaDto.getCodMonedaOrigen());
-	    tasaDtoRequestActualizar.setCodMonedaDestino(tasaDto.getCodMonedaDestino());
-	    tasaDtoRequestActualizar.setCodUsuario(tasaDto.getCodUsuario());
-	    tasaDtoRequestActualizar.setMontoTasa(tasaDtoRequestCrear.getMontoTasa());
-	    tasaDtoRequestActualizar.setFechaModificacion(tasaDto.getFechaModificacion());
-	    tasaRequestActualizar.setTasaDtoRequestActualizar(tasaDtoRequestActualizar);
+	    
 	    
 	    
 		TasaDtoResponseActualizar response;
 		HttpStatus estatusCM;
 		
 				
-		response = tasaService.actualizar(tasaRequestActualizar, requestHTTP);
+		response = tasaService.actualizar(tasaRequestCrear, requestHTTP);
 		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
 		LOGGER.info(estatusCM);
 		LOGGER.info(response);

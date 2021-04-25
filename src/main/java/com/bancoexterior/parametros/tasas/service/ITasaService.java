@@ -8,7 +8,6 @@ import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponseActualizar;
-import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.TasaPk;
@@ -22,7 +21,7 @@ import com.bancoexterior.parametros.tasas.entities.TasaPk;
 public interface ITasaService {
 
 	
-	
+	public List<TasaDto> findAllDtoNuevo(TasaDtoConsulta tasaDtoConsulta);
 	
 	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta);
 	
@@ -34,5 +33,5 @@ public interface ITasaService {
 	
 	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP);
 	
-	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar, HttpServletRequest requestHTTP);
+	public TasaDtoResponseActualizar actualizar(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP);
 }

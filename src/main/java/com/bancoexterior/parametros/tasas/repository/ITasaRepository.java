@@ -3,9 +3,7 @@ package com.bancoexterior.parametros.tasas.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
@@ -16,15 +14,20 @@ import com.bancoexterior.parametros.tasas.entities.TasaPk;
 
 @Repository
 public interface ITasaRepository extends JpaRepository<Tasa, TasaPk>{
-	//(CASE WHEN t.montoTasa <> 0 THEN 1/t.montoTasa ELSE 0 END)
-	//case when monto_tasa <> 0 then 1/monto_tasa else 0 end
 	String queryAll2 = "select new com.bancoexterior.parametros.tasas.dto.TasaDtoInversa(t.id.codMonedaOrigen, "
 			+ "t.id.codMonedaDestino, t.montoTasa, t.codUsuario, t.fechaModificacion, "
 			+ "round((case when t.montoTasa <> 0 then (1/t.montoTasa) else t.montoTasa end),2)) "
 			+ " from Tasa t"
 			+ " where 1=1";
 	
+	String queryNativo = "SELECT cod_moneda_origen, cod_moneda_destino, monto_tasa, cod_usuario, fecha_modificacion, "
+			+ " round((case when monto_tasa <> 0 then (1/monto_tasa) else monto_tasa end),2) as montoTasaInversa "
+			+ "FROM \"Convenio1\".\"Tasas\"\r\n"
+			+ "where cod_moneda_origen= (case when ?1 = '' then cod_moneda_origen else ?1 end)\r\n"
+			+ "and cod_moneda_destino = (case when ?2 = '' then cod_moneda_destino else ?2 end)";
 	
+	@Query(value = queryNativo, nativeQuery = true)
+	public List<Tasa> getTasaByNuevo(String codMonedaOrigen, String codMonedaDestino);
 	
 	
 	String queryAll = "select new com.bancoexterior.parametros.tasas.dto.TasaDto(t.id.codMonedaOrigen, "
@@ -32,6 +35,10 @@ public interface ITasaRepository extends JpaRepository<Tasa, TasaPk>{
 			+ "round((case when t.montoTasa <> 0 then (1/t.montoTasa) else t.montoTasa end),2)) "
 			+ " from Tasa t"
 			+ " where 1=1";
+	
+	
+	
+	
 	
 	String queryAllParameter = "select new com.bancoexterior.parametros.tasas.dto.TasaDto(t.id.codMonedaOrigen, t.id.codMonedaDestino, t.montoTasa, t.codUsuario, t.fechaModificacion) "
 			+ " from Tasa t"
@@ -45,7 +52,7 @@ public interface ITasaRepository extends JpaRepository<Tasa, TasaPk>{
 		@Query(value = queryAll)
 		public List<TasaDto> getAll();
 		
-		//@Modifying 
+	
 		@Query(value = queryAllParameter)
 		public List<TasaDto> getAll(String codMonedaOrigen);
 		

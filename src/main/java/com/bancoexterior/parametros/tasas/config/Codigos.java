@@ -117,7 +117,12 @@ public class Codigos {
 		public static final String TASASCONTROLLERF = "[==== FIN Convenio n° 1 Tasas - Controller ====]";
 		public static final String TASASSERVICEI    = "==== INICIO Convenio 1 - Tasas - Service ====";
 		public static final String TASASSERVICEF    = "==== FIN Convenio 1 - Tasas - Service ====";
-		
+		public static final String TASASSERVICEICOSULTAS    = "==== INICIO Convenio 1 - Tasas - Service - Consultas ====";
+		public static final String TASASSERVICEFCOSULTAS    = "==== FIN Convenio 1 - Tasas - Service - Consultas ====";
+		public static final String TASASSERVICEICREAR    = "==== INICIO Convenio 1 - Tasas - Service - Crear ====";
+		public static final String TASASSERVICEFCREAR    = "==== FIN Convenio 1 - Tasas - Service - Crear ====";
+		public static final String TASASSERVICEIACTUALIZAR    = "==== INICIO Convenio 1 - Tasas - Service - Actualizar ====";
+		public static final String TASASSERVICEFACTUALIZAR    = "==== FIN Convenio 1 - Tasas - Service - Actualizar ====";
 		
 		//Auditoria
 		

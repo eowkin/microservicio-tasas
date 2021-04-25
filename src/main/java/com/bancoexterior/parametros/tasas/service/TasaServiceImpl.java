@@ -1,6 +1,7 @@
 package com.bancoexterior.parametros.tasas.service;
 
-import java.math.BigDecimal;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -10,24 +11,24 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import com.bancoexterior.parametros.tasas.interfase.IRegistrarAuditoriaService;
 import com.bancoexterior.parametros.tasas.model.RegistrarAuditoriaRequest;
+import com.bancoexterior.parametros.tasas.util.Mapper;
 import com.bancoexterior.parametros.tasas.config.Codigos.CodRespuesta;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
 import com.bancoexterior.parametros.tasas.dto.TasaDto;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoConsulta;
-import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestActualizar;
-import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoRequestCrear;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponse;
 import com.bancoexterior.parametros.tasas.dto.TasaDtoResponseActualizar;
-import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestConsulta;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 import com.bancoexterior.parametros.tasas.entities.Tasa;
@@ -42,12 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TasaServiceImpl implements ITasaService{
 
+	private static final Logger LOGGER = LogManager.getLogger(TasaServiceImpl.class);
+	
 	@Autowired
 	private ITasaRepository repo;
 	
 	@Autowired
 	private Environment env;
 
+	@Autowired
+	private Mapper mapper;
 	
 	@Autowired
 	private IRegistrarAuditoriaService registrarA ;
@@ -56,26 +61,22 @@ public class TasaServiceImpl implements ITasaService{
 	
 	@Override
 	public TasaDtoResponse consultaTasas(TasaRequestConsulta request) {
-		log.info(Servicios.TASASSERVICEI);
+		LOGGER.info(Servicios.TASASSERVICEICOSULTAS);
 		TasaDtoResponse tasaDtoResponse = new TasaDtoResponse();
 		Resultado resultado = new Resultado();
 		String codigo = CodRespuesta.C0000;
 		String errorCM = Constantes.BLANK;
 		List<TasaDto> listTasaDto;
 		TasaDtoConsulta tasaDtoConsulta = new TasaDtoConsulta(request);
-		TasaDtoRequestConsulta tasaDtoRequestConsulta = request.getTasaDtoRequestConsulta();
-		log.info("codMonedaOrigen: "+tasaDtoRequestConsulta.getCodMonedaOrigen());
-		log.info("codMonedaDestino: "+tasaDtoRequestConsulta.getCodMonedaDestino());
+		//TasaDtoRequestConsulta tasaDtoRequestConsulta = request.getTasaDtoRequestConsulta();
 		try {
-			log.info("antes de llamara validarDatosConsulta");
+			
 			codigo = validaDatosConsulta(request);
-			log.info("codigo: "+codigo);
+			LOGGER.info("codigo: "+codigo);
 			if(codigo.equalsIgnoreCase(CodRespuesta.C0000)) {
-				log.info("monedaDto: "+tasaDtoConsulta);	
-				log.info("codMonedaOrigen: "+tasaDtoConsulta.getCodMonedaOrigen());
-				log.info("codMonedaDestino: "+tasaDtoConsulta.getCodMonedaDestino());
 				//consulta BD
 				listTasaDto = this.findAllDto(tasaDtoConsulta);
+				//listTasaDto = this.findAllDtoNuevo(tasaDtoConsulta);
 				tasaDtoResponse.setListTasasDto(listTasaDto);
 				
 				//Validar Respuesta
@@ -84,7 +85,7 @@ public class TasaServiceImpl implements ITasaService{
 				errorCM = resultado.getDescripcion();
 			}
 		} catch (Exception e) {
-			log.error(""+e);
+			LOGGER.error(e);
 			codigo = CodRespuesta.CME6000;
 			errorCM = Constantes.EXC+e;
 		}
@@ -92,14 +93,14 @@ public class TasaServiceImpl implements ITasaService{
 		tasaDtoResponse.getResultado().setCodigo(codigo);
 		tasaDtoResponse.getResultado().setDescripcion(env.getProperty(Constantes.RES+codigo,codigo).replace(Constantes.ERROR, errorCM));
 		
-		log.info("tasaDtoResponse: "+tasaDtoResponse);
-		log.info(Servicios.TASASSERVICEF);
+		LOGGER.info(tasaDtoResponse);
+		LOGGER.info(Servicios.TASASSERVICEFCOSULTAS);
 		return tasaDtoResponse;
 	}
 	
 	private String validaDatosConsulta(TasaRequestConsulta request) {
-		log.info("dentro de validarDatosConsulta");
-		log.info(""+request);
+		LOGGER.info("dentro de validarDatosConsulta");
+		LOGGER.info(""+request);
 		String codigo = CodRespuesta.C0000;
 		String codMonedaOrigen;
 		String codMonedaDestino;
@@ -111,7 +112,6 @@ public class TasaServiceImpl implements ITasaService{
 		request.getTasaDtoRequestConsulta().setCodMonedaDestino(codMonedaDestino);
 		
 		
-		log.info("antes de llamar factory");
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
 		Set<ConstraintViolation<TasaRequestConsulta>> errores = validator.validate(request);
@@ -160,7 +160,7 @@ public class TasaServiceImpl implements ITasaService{
 	    }*/
 
 	    
-	    log.info(""+resultado);
+		LOGGER.info(resultado);
 		return resultado;
 		
 	}
@@ -189,8 +189,8 @@ public class TasaServiceImpl implements ITasaService{
 	@Override
 	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP) {
 		
-		log.info(Servicios.TASASSERVICEI);
-		log.info("tasaRequestCrear: "+tasaRequestCrear);
+		LOGGER.info(Servicios.TASASSERVICEICREAR);
+		LOGGER.info(tasaRequestCrear);
 		String microservicio = Servicios.TASAS;
 		
 		RegistrarAuditoriaRequest reAU = null;
@@ -207,10 +207,8 @@ public class TasaServiceImpl implements ITasaService{
 		resultado.setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.C0000,CodRespuesta.C0000).replace(Constantes.ERROR, Constantes.BLANK));
 		
 		try {
-			log.info("tasaRequestCrear: "+tasaRequestCrear);
+			
 			TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear();
-			log.info("tasaDtoRequestCrear: "+tasaDtoRequestCrear);
-			//obj = mapper.map(tasaDtoRequestCrear, Tasa.class);
 			TasaPk id = new TasaPk(tasaDtoRequestCrear.getCodMonedaOrigen(), tasaDtoRequestCrear.getCodMonedaDestino());
 			
 			obj.setId(id);
@@ -222,8 +220,7 @@ public class TasaServiceImpl implements ITasaService{
 			log.info("obj: "+obj);
 			obj = repo.save(obj);
 			response.setResultado(resultado);
-			//response.setListTasasDto(repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(obj.getId().getCodMonedaOrigen(), obj.getId().getCodMonedaOrigen()));
-			//return response;
+			
 		} catch (Exception e) {
 			log.error("e: "+e);
 			codigo = CodRespuesta.CME6001;
@@ -231,7 +228,7 @@ public class TasaServiceImpl implements ITasaService{
 			
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
-			//return response;
+			
 		}
 		
 		resultado.setCodigo(codigo);
@@ -245,6 +242,7 @@ public class TasaServiceImpl implements ITasaService{
 			registrarAuditoriaBD(reAU, resultado, errorM);
 		}
 		
+		LOGGER.info(Servicios.TASASSERVICEFCREAR);
 		return response;
 	}
 
@@ -261,17 +259,17 @@ public class TasaServiceImpl implements ITasaService{
 		tasaDto.setFechaModificacion(tasa.getFechaModificacion());
 		return tasaDto;
 	}
-
+	
 	@Override
-	public TasaDtoResponseActualizar actualizar(TasaRequestActualizar tasaRequestActualizar, HttpServletRequest requestHTTP) {
-		log.info(Servicios.TASASSERVICEI);
-		log.info("tasaRequestActualizar: "+tasaRequestActualizar);
+	public TasaDtoResponseActualizar actualizar(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP) {
+		LOGGER.info(Servicios.TASASSERVICEIACTUALIZAR);
+		LOGGER.info(tasaRequestCrear);
 		String microservicio = Servicios.TASASACTUALIZAR;
 		
 		RegistrarAuditoriaRequest reAU = null;
 		
 		
-		reAU = new RegistrarAuditoriaRequest(tasaRequestActualizar, microservicio,requestHTTP);
+		reAU = new RegistrarAuditoriaRequest(tasaRequestCrear, microservicio,requestHTTP);
 		String errorM = Constantes.BLANK;
 		String codigo =  CodRespuesta.C0000;
 		
@@ -284,19 +282,21 @@ public class TasaServiceImpl implements ITasaService{
 		resultado.setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.C0000,CodRespuesta.C0000).replace(Constantes.ERROR, Constantes.BLANK));
 		
 		try {
-			log.info("tasaRequestActualizar: "+tasaRequestActualizar);
-			TasaDtoRequestActualizar tasaDtoRequestActualizar = tasaRequestActualizar.getTasaDtoRequestActualizar();
 			
-			log.info("tasaDtoRequestActualizar: "+tasaDtoRequestActualizar);
-			//obj = mapper.map(tasaDtoRequestCrear, Tasa.class);
-			TasaPk id = new TasaPk(tasaDtoRequestActualizar.getCodMonedaOrigen(), tasaDtoRequestActualizar.getCodMonedaDestino());
+			TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear();
+			log.info("tasaDtoRequestCrear: "+tasaDtoRequestCrear);
 			
+			TasaPk id = new TasaPk(tasaDtoRequestCrear.getCodMonedaOrigen(), tasaDtoRequestCrear.getCodMonedaDestino());
+			TasaDto tasaDto = this.findByIdDto(id);
+		    tasaDto.setMontoTasa(tasaDtoRequestCrear.getMontoTasa());
+		    tasaDto.setCodUsuario(tasaRequestCrear.getCodUsuarioMR());
+		  
 			obj.setId(id);
-			obj.setCodUsuario(tasaRequestActualizar.getCodUsuarioMR());
-			obj.setMontoTasa(tasaDtoRequestActualizar.getMontoTasa());
-			obj.setFechaModificacion(tasaDtoRequestActualizar.getFechaModificacion());
+			obj.setCodUsuario(tasaDto.getCodUsuario());
+			obj.setMontoTasa(tasaDto.getMontoTasa());
+			obj.setFechaModificacion(tasaDto.getFechaModificacion());
 
-			obj.setCodUsuario("E555555555555555");
+			//obj.setCodUsuario("E555555555555555");
 			
 			log.info("obj: "+obj);
 			obj = repo.save(obj);
@@ -318,13 +318,15 @@ public class TasaServiceImpl implements ITasaService{
 			reAU.setIdCliente(Constantes.RIF);
 			reAU.setCedula(Constantes.CEDULA);
 			reAU.setTelefono(Constantes.TELEFONO);
-			reAU.setIdCanal(tasaRequestActualizar.getCanalCM());
+			reAU.setIdCanal(tasaRequestCrear.getCanalCM());
 			registrarAuditoriaBD(reAU, resultado, errorM);
 		}
 		
 		return response;
 	}
 	
+	
+		
 	@Override
 	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta){
 		List<TasaDto> listTasaDto = null;
@@ -344,6 +346,40 @@ public class TasaServiceImpl implements ITasaService{
 		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() != null) {
 			listTasaDto = repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(tasaDtoConsulta.getCodMonedaOrigen(), tasaDtoConsulta.getCodMonedaDestino());
 		}
+		return listTasaDto;
+	}
+
+	@Override
+	public List<TasaDto> findAllDtoNuevo(TasaDtoConsulta tasaDtoConsulta) {
+		
+		LOGGER.info(Servicios.TASASSERVICEICOSULTAS+" EN BD");
+		
+		List<Tasa> listTasa = null;
+		List<TasaDto> listTasaDto = new ArrayList<TasaDto>();
+		
+		String codMonedaOrigen = Constantes.BLANK;
+		String codMonedaDestino = Constantes.BLANK;
+		
+		if(tasaDtoConsulta.getCodMonedaOrigen() != null){
+			codMonedaOrigen = tasaDtoConsulta.getCodMonedaOrigen();
+		}
+		
+		if(tasaDtoConsulta.getCodMonedaDestino() != null){
+			codMonedaDestino = tasaDtoConsulta.getCodMonedaDestino();
+		}
+		
+		LOGGER.info("codMonedaOrigen: "+codMonedaOrigen);
+		LOGGER.info("codMonedaDestino: "+codMonedaDestino);
+		
+		
+		listTasa = repo.getTasaByNuevo(codMonedaOrigen, codMonedaDestino);
+		
+		for (Tasa tasa : listTasa) {
+			LOGGER.info("tasa: "+tasa);
+			TasaDto tasaDto = mapper.map(tasa, TasaDto.class);
+			listTasaDto.add(tasaDto);
+		}
+		
 		return listTasaDto;
 	}
 

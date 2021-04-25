@@ -6,7 +6,7 @@ import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 
-import lombok.extern.slf4j.Slf4j;
+
 
 
 
