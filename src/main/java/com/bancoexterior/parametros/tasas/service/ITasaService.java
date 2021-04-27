@@ -19,9 +19,6 @@ import com.bancoexterior.parametros.tasas.entities.TasaPk;
 
 
 public interface ITasaService {
-
-	
-	public List<TasaDto> findAllDtoNuevo(TasaDtoConsulta tasaDtoConsulta);
 	
 	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta);
 	

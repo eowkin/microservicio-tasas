@@ -1,7 +1,7 @@
 package com.bancoexterior.parametros.tasas.service;
 
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import com.bancoexterior.parametros.tasas.interfase.IRegistrarAuditoriaService;
 import com.bancoexterior.parametros.tasas.model.RegistrarAuditoriaRequest;
-import com.bancoexterior.parametros.tasas.util.Mapper;
 import com.bancoexterior.parametros.tasas.config.Codigos.CodRespuesta;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
@@ -36,10 +35,9 @@ import com.bancoexterior.parametros.tasas.entities.TasaPk;
 import com.bancoexterior.parametros.tasas.repository.ITasaRepository;
 import com.bancoexterior.parametros.tasas.response.Resultado;
 
-import lombok.extern.slf4j.Slf4j;
 
 
-@Slf4j
+
 @Service
 public class TasaServiceImpl implements ITasaService{
 
@@ -52,13 +50,20 @@ public class TasaServiceImpl implements ITasaService{
 	private Environment env;
 
 	@Autowired
-	private Mapper mapper;
-	
-	@Autowired
 	private IRegistrarAuditoriaService registrarA ;
 
-
 	
+	/**
+	 * Nombre: consultaTasas 
+	 * Descripcion: Invocar metodo para la gestion de consulta a realizar
+	 * para la busqueda de tasas con los parametros enviados.
+	 *
+	 * @param request     Objeto tipo TasaRequestConsulta
+	 * @return TasaDtoResponse
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	@Override
 	public TasaDtoResponse consultaTasas(TasaRequestConsulta request) {
 		LOGGER.info(Servicios.TASASSERVICEICOSULTAS);
@@ -98,6 +103,16 @@ public class TasaServiceImpl implements ITasaService{
 		return tasaDtoResponse;
 	}
 	
+	/**
+     * Nombre:                  validaDatosConsulta
+     * Descripcion:             Valida datos de entrada del metodo de consulta.
+     *
+     * @param request Objeto TasaRequestConsulta
+     * @return String  Codigo resultado de la evaluacion.
+     * @version 1.0
+     * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	private String validaDatosConsulta(TasaRequestConsulta request) {
 		LOGGER.info("dentro de validarDatosConsulta");
 		LOGGER.info(""+request);
@@ -134,12 +149,12 @@ public class TasaServiceImpl implements ITasaService{
      * Nombre:                  validaConsulta
      * Descripcion:             Metodo para evaluar el resultado de la consulta de las monedas
      *
-     * @param  Objeto List<MonedasBD>
+     * @param listTasaDto Objeto List<TasaDto>
      * @return Resultado  Objeto con la información de la evaluacion.
      * @version 1.0
-     * @author Wilmer Vieira
-	 * @since 16/03/21
-    */ 
+     * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */ 
 	
 	private Resultado validaConsulta(List<TasaDto> listTasaDto) {
 		Resultado resultado = new Resultado();
@@ -150,15 +165,6 @@ public class TasaServiceImpl implements ITasaService{
 			resultado.setCodigo(CodRespuesta.C0001);
 			return resultado;
 		}
-
-		/*
-	    if(monedasBD.get(0).getCodMonedaBD().equalsIgnoreCase(Constantes.SERROR)) {
-	    	resultado.setCodigo(CodRespuesta.CME6002);
-	    	resultado.setDescripcion(monedasBD.get(0).getDescripcionBD());
-	    	 LOGGER.error(resultado);
-	    	return resultado;
-	    }*/
-
 	    
 		LOGGER.info(resultado);
 		return resultado;
@@ -173,19 +179,44 @@ public class TasaServiceImpl implements ITasaService{
      * @param  codigo   Codigo de respuesta
      * @param descripcion Descripcion del resultado
      * @version 1.0
-     * @author Wilmer Vieira
-	 * @since 02/03/21
-     */
+     * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	private void registrarAuditoriaBD(RegistrarAuditoriaRequest registrarAu,Resultado response, String errorAdicional) {
 			
 		        registrarA.registrarAuditoria(registrarAu, response.getCodigo(),response.getDescripcion(),errorAdicional);	
 	}
 	
+	
+	
+	/**
+	 * Nombre: existsById 
+	 * Descripcion: Invocar metodo para buscar si existe o no 
+	 * una tasa por TasaPk.
+	 * @param id String  
+	 * @return boolean
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	@Override
 	public boolean existsById(TasaPk id) {
 		return repo.existsById(id);
 	}
 
+	/**
+	 * Nombre: save 
+	 * Descripcion: Invocar metodo para crear la tasa con
+	 * los parametros enviados.
+	 *
+	 * @param request     Objeto tipo TasaRequestCrear
+	 * @param requestHTTP Objeto tipo HttpServletRequest
+	 * @return MonedaDtoResponseActualizar
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
+	
 	@Override
 	public TasaDtoResponseActualizar save(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP) {
 		
@@ -217,15 +248,14 @@ public class TasaServiceImpl implements ITasaService{
 			//E66666
 			//obj.setCodUsuario("E555555555555555");
 			
-			log.info("obj: "+obj);
+			
 			obj = repo.save(obj);
 			response.setResultado(resultado);
 			
 		} catch (Exception e) {
-			log.error("e: "+e);
+			LOGGER.error(e);
 			codigo = CodRespuesta.CME6001;
 			errorM = Constantes.EXC+e;
-			
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 			
@@ -247,7 +277,17 @@ public class TasaServiceImpl implements ITasaService{
 	}
 
 
-
+	/**
+	 * Nombre: findByIdDto 
+	 * Descripcion: Invocar metodo para una busqueda de una tasa
+	 * por id.
+	 *
+	 * @param id TasaPk  
+	 * @return TasaDto
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	@Override
 	public TasaDto findByIdDto(TasaPk id) {
 		Tasa tasa = repo.findById(id).orElse(null);
@@ -260,6 +300,18 @@ public class TasaServiceImpl implements ITasaService{
 		return tasaDto;
 	}
 	
+	/**
+	 * Nombre: actualizar 
+	 * Descripcion: Invocar metodo para actualizar la tasa con
+	 * los parametros enviados.
+	 *
+	 * @param request     Objeto tipo TasaRequestCrear
+	 * @param requestHTTP Objeto tipo HttpServletRequest
+	 * @return TasaDtoResponseActualizar
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 	@Override
 	public TasaDtoResponseActualizar actualizar(TasaRequestCrear tasaRequestCrear, HttpServletRequest requestHTTP) {
 		LOGGER.info(Servicios.TASASSERVICEIACTUALIZAR);
@@ -284,7 +336,6 @@ public class TasaServiceImpl implements ITasaService{
 		try {
 			
 			TasaDtoRequestCrear tasaDtoRequestCrear = tasaRequestCrear.getTasaDtoRequestCrear();
-			log.info("tasaDtoRequestCrear: "+tasaDtoRequestCrear);
 			
 			TasaPk id = new TasaPk(tasaDtoRequestCrear.getCodMonedaOrigen(), tasaDtoRequestCrear.getCodMonedaDestino());
 			TasaDto tasaDto = this.findByIdDto(id);
@@ -298,15 +349,14 @@ public class TasaServiceImpl implements ITasaService{
 
 			//obj.setCodUsuario("E555555555555555");
 			
-			log.info("obj: "+obj);
+			LOGGER.info("obj: "+obj);
 			obj = repo.save(obj);
 			response.setResultado(resultado);
 			//return response;
 		} catch (Exception e) {
-			log.error("e: "+e);
+			LOGGER.error(e);
 			codigo = CodRespuesta.CME6001;
 			errorM = Constantes.EXC+e;
-			
 			response.getResultado().setCodigo(CodRespuesta.CME6001);
 			response.getResultado().setDescripcion(env.getProperty(Constantes.RES+CodRespuesta.CME6001,CodRespuesta.CME6001));
 		}
@@ -321,14 +371,25 @@ public class TasaServiceImpl implements ITasaService{
 			reAU.setIdCanal(tasaRequestCrear.getCanalCM());
 			registrarAuditoriaBD(reAU, resultado, errorM);
 		}
-		
+		LOGGER.info(Servicios.TASASSERVICEFACTUALIZAR);
 		return response;
 	}
 	
-	
+	/**
+	 * Nombre: findAllDto 
+	 * Descripcion: Invocar metodo para una busqueda de las tasas con
+	 * los parametros enviados.
+	 *
+	 * @param request     Objeto tipo TasaDtoConsulta
+	 * @return List<TasaDto>
+	 * @version 1.0
+	 * @author Eugenio Owkin
+	 * @since 12/04/21
+	 */
 		
 	@Override
 	public List<TasaDto> findAllDto(TasaDtoConsulta tasaDtoConsulta){
+		LOGGER.info(Servicios.TASASSERVICEICOSULTAS+"BD");
 		List<TasaDto> listTasaDto = null;
 		
 		if(tasaDtoConsulta.getCodMonedaOrigen() == null && tasaDtoConsulta.getCodMonedaDestino() == null) {
@@ -346,49 +407,9 @@ public class TasaServiceImpl implements ITasaService{
 		if(tasaDtoConsulta.getCodMonedaOrigen() != null && tasaDtoConsulta.getCodMonedaDestino() != null) {
 			listTasaDto = repo.getTasaByCodMonedaOrigenAndCodMonedaDestino(tasaDtoConsulta.getCodMonedaOrigen(), tasaDtoConsulta.getCodMonedaDestino());
 		}
-		return listTasaDto;
-	}
-
-	@Override
-	public List<TasaDto> findAllDtoNuevo(TasaDtoConsulta tasaDtoConsulta) {
-		
-		LOGGER.info(Servicios.TASASSERVICEICOSULTAS+" EN BD");
-		
-		List<Tasa> listTasa = null;
-		List<TasaDto> listTasaDto = new ArrayList<TasaDto>();
-		
-		String codMonedaOrigen = Constantes.BLANK;
-		String codMonedaDestino = Constantes.BLANK;
-		
-		if(tasaDtoConsulta.getCodMonedaOrigen() != null){
-			codMonedaOrigen = tasaDtoConsulta.getCodMonedaOrigen();
-		}
-		
-		if(tasaDtoConsulta.getCodMonedaDestino() != null){
-			codMonedaDestino = tasaDtoConsulta.getCodMonedaDestino();
-		}
-		
-		LOGGER.info("codMonedaOrigen: "+codMonedaOrigen);
-		LOGGER.info("codMonedaDestino: "+codMonedaDestino);
-		
-		
-		listTasa = repo.getTasaByNuevo(codMonedaOrigen, codMonedaDestino);
-		
-		for (Tasa tasa : listTasa) {
-			LOGGER.info("tasa: "+tasa);
-			TasaDto tasaDto = mapper.map(tasa, TasaDto.class);
-			listTasaDto.add(tasaDto);
-		}
-		
+		LOGGER.info(Servicios.TASASSERVICEFCOSULTAS+"BD");
 		return listTasaDto;
 	}
 
 	
-
-	
-
-	
-	
-	
-
 }
