@@ -50,8 +50,11 @@ public class DataSourceConfig {
     	LOGGER.info("sconfigDesKey: "+sconfigDesKey);
     	LOGGER.info("sconfigProKey: "+sconfigProKey);
     	LOGGER.info("seedTasa: "+seedTasa);
-    	//String usuarioEncrypt = MiCipher.encrypt(usuario, SConfig.getkEY(ambiente)[0]);
-    	//String passwordEncrypt = MiCipher.encrypt(password, SConfig.getkEY(ambiente)[0]);
+    	
+    	String usuarioEncryptBanco = MiCipher.encrypt("C14405", sconfigDesKey);
+    	String passwordEncryptBanco = MiCipher.encrypt("Cumana01*", sconfigDesKey);
+    	LOGGER.info("usuarioEncryptBanco: "+usuarioEncryptBanco);
+    	LOGGER.info("passwordEncryptBanco: "+passwordEncryptBanco);
     	
     	
     	
@@ -63,7 +66,8 @@ public class DataSourceConfig {
     	
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("org.postgresql.Driver");
-        dataSourceBuilder.url("jdbc:postgresql://localhost:5432/Convenio1");
+        //dataSourceBuilder.url("jdbc:postgresql://localhost:5432/Convenio1");
+        dataSourceBuilder.url("jdbc:postgresql://172.19.148.50:5432/Convenio1");
         dataSourceBuilder.username(usuarioDecrypt);
         dataSourceBuilder.password(passwordDecrypt);
         return dataSourceBuilder.build();
