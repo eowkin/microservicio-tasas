@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bancoexterior.parametros.tasas.util.Utils;
+import com.bancoexterior.parametros.tasas.util.LibreriaUtils;
 import com.bancoexterior.parametros.tasas.validator.ITasaValidator;
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
 import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
@@ -72,7 +72,7 @@ public class TasaController {
 		HttpStatus estatusCM;
 		
 		response = tasaService.consultaTasas(tasaRequestConsulta);
-		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
+		estatusCM = LibreriaUtils.getHttpStatus(response.getResultado().getCodigo().trim());
 		LOGGER.info(estatusCM);
 		LOGGER.info(response);
 		LOGGER.info(Servicios.TASASCONTROLLERF);
@@ -112,7 +112,7 @@ public class TasaController {
 				
 		response = tasaService.save(tasaRequestCrear, requestHTTP);
 		LOGGER.info(response);
-		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
+		estatusCM = LibreriaUtils.getHttpStatus(response.getResultado().getCodigo().trim());
 		
 		LOGGER.info(estatusCM);
 		
@@ -151,7 +151,7 @@ public class TasaController {
 		
 				
 		response = tasaService.actualizar(tasaRequestCrear, requestHTTP);
-		estatusCM = Utils.getHttpStatus(response.getResultado().getCodigo().trim());
+		estatusCM = LibreriaUtils.getHttpStatus(response.getResultado().getCodigo().trim());
 		LOGGER.info(estatusCM);
 		LOGGER.info(response);
 		LOGGER.info(Servicios.TASASCONTROLLERF);

@@ -2,20 +2,28 @@ package com.bancoexterior.parametros.tasas.config;
 
 
 
-import lombok.Data;
 
 public class Codigos {
 
-	@Data
+	
 	public class Ambientes{
+		
+		private Ambientes() {
+			super();
+		}
 		
 		public static final String DESARROLLO = "des";
 		public static final String CALIDAD    = "qa";
 		public static final String PRODUCCION = "pro";
 	}
 	
-	@Data
+	
 	public class CodRespuesta{
+		
+		private CodRespuesta() {
+			super();
+		}
+		
 		//ok
 		public static final String C0000 = "0000";
 		public static final String C0001 = "0001";
@@ -54,14 +62,23 @@ public class Codigos {
 		
 	}
 	
-	@Data
+	
 	public class Annotation{
-		 public static final String OBJECTDEFAULT     = "[Objeto vacio]";
+		
+		private Annotation() {
+			super();
+		}
+		
+		public static final String OBJECTDEFAULT     = "[Objeto vacio]";
 		 public static final String FECHADEFAULT      = "[Fecha invalida]";
 	 }
 	
-	@Data
+	
 	public class ParamConfig{
+		
+		private ParamConfig() {
+			super();
+		}
 		
 		public static final String CANAL           = "^[a-zA-Z\\-0-9]{1,4}$";
 		public static final String IDSESIONVALID   = "uuuuMMddHHmmss";
@@ -70,12 +87,16 @@ public class Codigos {
 		public static final String CODMONEDA       = "^[a-zA-Z\\-0-9]{1,3}$";
 		public static final String DESCRIPCION     = "^.{1,500}$";
 		public static final String CODALTERNO      = "^.{1,10}$";
-		//public static final String MONTO           = "^\\d{1,3}(\\.?\\d{3})*(,\\d{1,2})?$";
+
 		
 	}
 	
-	@Data
+	
 	public class Constantes{
+		
+		private Constantes() {
+			super();
+		}
 		
 		public static final String MONEDADEFAULT                      = "000";
 		public static final String TRUE                               = "true";
@@ -102,9 +123,12 @@ public class Codigos {
 	}
 	
 	
-	@Data
+	
 	public class Servicios{
 		
+		private Servicios() {
+			super();
+		}
 		
 		//tasas
 		public static final String TASASURLV1       = "/v1/parametros/tasas";
@@ -131,8 +155,11 @@ public class Codigos {
 		
 	}
 	
-	@Data
+	
 	public class ExceptionMessages{
+		private ExceptionMessages() {
+			super();
+		}
 		
 		public static final String UNIRESTHTTPE         = "HttpStatusCodeException: %1$s";
 		public static final String UNIRESTBODYE         = "ResponseBody: %1$s";
@@ -143,14 +170,29 @@ public class Codigos {
 	}
 		
 	
-	@Data
-	public class InfoMessages {
 	
+	public class InfoMessages {
+		
+		private InfoMessages() {
+			super();
+		}
 		// Auditoria Service
     	public static final String AUREQUEST                = "Request = [{}]";
     	public static final String AUPRINTINFO              = "registrar Auditoria respuesta: ";
 	}
 		
+	public class SQLUtils{
+		
+		private SQLUtils() {
+			super();
+		}
+		
+		public static final String SELECTTASA ="select new com.bancoexterior.parametros.tasas.dto.TasaDto(t.id.codMonedaOrigen, "
+				+ "t.id.codMonedaDestino, t.montoTasa, t.codUsuario, t.fechaModificacion, "
+				+ "round((case when t.montoTasa <> 0 then (1/t.montoTasa) else t.montoTasa end),2)) "
+				+ " from Tasa t"
+				+ " where 1=1";
+	}
 		
 		
 	

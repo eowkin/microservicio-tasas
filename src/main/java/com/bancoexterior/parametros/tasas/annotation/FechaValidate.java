@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
-import com.bancoexterior.parametros.tasas.util.Utils;
+import com.bancoexterior.parametros.tasas.util.LibreriaUtils;
 
 
 
@@ -35,7 +35,7 @@ ConstraintValidator<AFechaValidate, String> {
     ConstraintValidatorContext cxt) {
 	 
 	  fechaValidar = fechaValidar == null ? Constantes.BLANK:fechaValidar;
-	  return Utils.validaFormatoFecha(fechaValidar,formato);
+	  return LibreriaUtils.validaFormatoFecha(fechaValidar,formato);
   
 
   }

@@ -38,15 +38,7 @@ public class TasaDto implements Serializable{
 	
 	
 	
-	public TasaDto(TasaRequest tasaRequest) {
-		super();
-		this.codMonedaOrigen = tasaRequest.getTasasDtoRequest().getCodMonedaOrigen();
-		this.codMonedaDestino = tasaRequest.getTasasDtoRequest().getCodMonedaDestino();
-		this.montoTasa = tasaRequest.getTasasDtoRequest().getMontoTasa();
-		this.codUsuario = tasaRequest.getCodUsuarioMR();
-		
-		
-	}
+	
 	
 	
 
@@ -54,15 +46,7 @@ public class TasaDto implements Serializable{
 	
 	
 	
-	public TasaDto(String codMonedaOrigen, String codMonedaDestino, BigDecimal montoTasa, String codUsuario,
-			Date fechaModificacion) {
-		super();
-		this.codMonedaOrigen = codMonedaOrigen;
-		this.codMonedaDestino = codMonedaDestino;
-		this.montoTasa = montoTasa;
-		this.codUsuario = codUsuario;
-		this.fechaModificacion = fechaModificacion;
-	}
+	
 
 
 

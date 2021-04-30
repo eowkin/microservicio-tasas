@@ -73,15 +73,14 @@ public class TasaServiceImpl implements ITasaService{
 		String errorCM = Constantes.BLANK;
 		List<TasaDto> listTasaDto;
 		TasaDtoConsulta tasaDtoConsulta = new TasaDtoConsulta(request);
-		//TasaDtoRequestConsulta tasaDtoRequestConsulta = request.getTasaDtoRequestConsulta();
+		
 		try {
 			
 			codigo = validaDatosConsulta(request);
-			LOGGER.info("codigo: "+codigo);
+			LOGGER.info(codigo);
 			if(codigo.equalsIgnoreCase(CodRespuesta.C0000)) {
 				//consulta BD
 				listTasaDto = this.findAllDto(tasaDtoConsulta);
-				//listTasaDto = this.findAllDtoNuevo(tasaDtoConsulta);
 				tasaDtoResponse.setListTasasDto(listTasaDto);
 				
 				//Validar Respuesta
@@ -115,7 +114,7 @@ public class TasaServiceImpl implements ITasaService{
 	 */
 	private String validaDatosConsulta(TasaRequestConsulta request) {
 		LOGGER.info("dentro de validarDatosConsulta");
-		LOGGER.info(""+request);
+		LOGGER.info(request);
 		String codigo = CodRespuesta.C0000;
 		String codMonedaOrigen;
 		String codMonedaDestino;
@@ -245,11 +244,7 @@ public class TasaServiceImpl implements ITasaService{
 			obj.setId(id);
 			obj.setCodUsuario(tasaRequestCrear.getCodUsuarioMR());
 			obj.setMontoTasa(tasaDtoRequestCrear.getMontoTasa());
-			//E66666
-			//obj.setCodUsuario("E555555555555555");
-			
-			
-			obj = repo.save(obj);
+			repo.save(obj);
 			response.setResultado(resultado);
 			
 		} catch (Exception e) {
@@ -291,13 +286,18 @@ public class TasaServiceImpl implements ITasaService{
 	@Override
 	public TasaDto findByIdDto(TasaPk id) {
 		Tasa tasa = repo.findById(id).orElse(null);
-		TasaDto tasaDto = new TasaDto();
-		tasaDto.setCodMonedaOrigen(tasa.getId().getCodMonedaOrigen());
-		tasaDto.setCodMonedaDestino(tasa.getId().getCodMonedaDestino());
-		tasaDto.setMontoTasa(tasa.getMontoTasa());
-		tasaDto.setCodUsuario(tasa.getCodUsuario());
-		tasaDto.setFechaModificacion(tasa.getFechaModificacion());
-		return tasaDto;
+		
+		if(tasa != null) {
+			TasaDto tasaDto = new TasaDto();
+			tasaDto.setCodMonedaOrigen(tasa.getId().getCodMonedaOrigen());
+			tasaDto.setCodMonedaDestino(tasa.getId().getCodMonedaDestino());
+			tasaDto.setMontoTasa(tasa.getMontoTasa());
+			tasaDto.setCodUsuario(tasa.getCodUsuario());
+			tasaDto.setFechaModificacion(tasa.getFechaModificacion());
+			return tasaDto;
+		}else {
+			return null;
+		}
 	}
 	
 	/**
@@ -326,7 +326,6 @@ public class TasaServiceImpl implements ITasaService{
 		String codigo =  CodRespuesta.C0000;
 		
 		Tasa obj = new Tasa();
-		//TasaDtoResponse response = new TasaDtoResponse();
 		TasaDtoResponseActualizar response = new TasaDtoResponseActualizar();
 		Resultado resultado = new Resultado();
 		
@@ -346,13 +345,9 @@ public class TasaServiceImpl implements ITasaService{
 			obj.setCodUsuario(tasaDto.getCodUsuario());
 			obj.setMontoTasa(tasaDto.getMontoTasa());
 			obj.setFechaModificacion(tasaDto.getFechaModificacion());
-
-			//obj.setCodUsuario("E555555555555555");
-			
-			LOGGER.info("obj: "+obj);
-			obj = repo.save(obj);
+			repo.save(obj);
 			response.setResultado(resultado);
-			//return response;
+			
 		} catch (Exception e) {
 			LOGGER.error(e);
 			codigo = CodRespuesta.CME6001;

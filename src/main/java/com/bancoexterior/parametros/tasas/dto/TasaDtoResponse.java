@@ -21,7 +21,7 @@ public class TasaDtoResponse implements Serializable{
 	public TasaDtoResponse() {
 		super();
 		this.resultado = new Resultado();
-		this.listTasasDto = new ArrayList<TasaDto>();
+		this.listTasasDto = new ArrayList<>();
 	}
 	
 	

@@ -3,7 +3,6 @@ package com.bancoexterior.parametros.tasas.model;
 import javax.servlet.http.HttpServletRequest;
 
 import com.bancoexterior.parametros.tasas.config.Codigos.Constantes;
-import com.bancoexterior.parametros.tasas.dto.TasaRequestActualizar;
 import com.bancoexterior.parametros.tasas.dto.TasaRequestCrear;
 
 
@@ -53,25 +52,7 @@ public class RegistrarAuditoriaRequest {
 		
 	}
 	
-	public RegistrarAuditoriaRequest(TasaRequestActualizar request, String microservicio,HttpServletRequest requestHTTP) {
-		
-		
-		this.fecha                = Constantes.BLANK;
-		this.idCliente            = Constantes.BLANK;
-		this.ipOrigen             = requestHTTP.getHeader(Constantes.XCLIENTIP) != null ? requestHTTP.getHeader(Constantes.XCLIENTIP) : requestHTTP.getRemoteAddr();
-		this.usuario              = request.getCodUsuarioMR();
-		this.terminal             = Constantes.TERMINAL;
-		this.microservicio        = microservicio;
-		this.referencia           = Constantes.N_A;
-		this.codigoResultado      = Constantes.BLANK;
-		this.descripcionResultado = Constantes.BLANK;
-		this.detalleError         = Constantes.BLANK;
-		this.idCanal              = request.getCanalCM();
-		this.idSesion             = request.getIdSesionMR();
-		this.telefono             = Constantes.BLANK;
-		this.medio                = Constantes.TERMINAL;
-		
-	}
+	
 	
 	
 	public String getMedio() {

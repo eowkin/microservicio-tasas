@@ -17,7 +17,7 @@ import com.bancoexterior.parametros.tasas.config.Codigos.Servicios;
 import com.bancoexterior.parametros.tasas.model.RegistrarAuditoriaRequest;
 import com.bancoexterior.parametros.tasas.model.WSRequest;
 import com.bancoexterior.parametros.tasas.model.WSResponse;
-import com.bancoexterior.parametros.tasas.util.Utils;
+import com.bancoexterior.parametros.tasas.util.LibreriaUtils;
 
 
 @Service
@@ -59,7 +59,7 @@ public class RegistrarAuditoriaService implements IRegistrarAuditoriaService{
 		WSResponse  retorno;
 		String print;
         auditoria.setCodigoResultado(codigo);
-        auditoria.setFecha(Utils.fechaOut(Constantes.FECHA_HORA));
+        auditoria.setFecha(LibreriaUtils.fechaOut(Constantes.FECHA_HORA));
         auditoria.setDescripcionResultado(mensaje);			
 	
 		if(!codigo.substring(0,1).equalsIgnoreCase(Constantes.SUBSTRING_COD_OK)){					
